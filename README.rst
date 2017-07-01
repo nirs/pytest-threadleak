@@ -43,7 +43,7 @@ Here is an example run with thread leak plugin enabled::
     leak_test.py::test_leak FAILED
     ...
     >   ???
-    E   Failed: Test leaked ([<Thread(Thread-1, started 139762716391168)>])
+    E   Failed: Test leaked [<Thread(Thread-1, started 139762716391168)>]
 
 If you want to enable thread leak by default, you can enable it in your
 pytest.ini or tox.ini::
