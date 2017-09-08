@@ -5,12 +5,13 @@ import threading
 import time
 
 def test_leak():
-    t = threading.Thread(
-        target=time.sleep,
-        args=(0.5,),
-        name="leaked-thread")
-    t.daemon = True
-    t.start()
+    for i in range(2):
+        t = threading.Thread(
+            target=time.sleep,
+            args=(0.5,),
+            name="leaked-thread-%d" % i)
+        t.daemon = True
+        t.start()
 """
 
 INI_ENABLED = """
@@ -29,7 +30,7 @@ def test_leak_enabled_option(testdir):
     result = testdir.runpytest('--threadleak', '-v')
     result.stdout.fnmatch_lines([
         '*::test_leak FAILED',
-        '*Failed: Test leaked *leaked-thread*',
+        '*Failed: Test leaked *leaked-thread-0*leaked-thread-1*',
     ])
     assert result.ret == 1
 
@@ -40,7 +41,7 @@ def test_leak_enabled_ini(testdir):
     result = testdir.runpytest('-v')
     result.stdout.fnmatch_lines([
         '*::test_leak FAILED',
-        '*Failed: Test leaked *leaked-thread*',
+        '*Failed: Test leaked *leaked-thread-0*leaked-thread-1*',
     ])
     assert result.ret == 1
 
@@ -51,7 +52,7 @@ def test_leak_option_overrides_ini(testdir):
     result = testdir.runpytest('--threadleak', '-v')
     result.stdout.fnmatch_lines([
         '*::test_leak FAILED',
-        '*Failed: Test leaked *leaked-thread*',
+        '*Failed: Test leaked *leaked-thread-0*leaked-thread-1*',
     ])
     assert result.ret == 1
 

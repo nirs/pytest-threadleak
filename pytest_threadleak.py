@@ -1,3 +1,4 @@
+import operator
 import threading
 import pytest
 
@@ -26,7 +27,7 @@ def pytest_runtest_call(item):
     if start_threads:
         leaked_threads = current_threads() - start_threads
         if leaked_threads:
-            pytest.fail("Test leaked %s" % sorted(leaked_threads))
+            pytest.fail("Test leaked %s" % sorted_by_name(leaked_threads))
 
 
 def is_enabled(item):
@@ -36,3 +37,7 @@ def is_enabled(item):
 
 def current_threads():
     return frozenset(threading.enumerate())
+
+
+def sorted_by_name(threads):
+    return sorted(threads, key=operator.attrgetter("name"))
