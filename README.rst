@@ -51,6 +51,27 @@ pytest.ini or tox.ini::
     [pytest]
     threadleak = True
 
+If you want to enable thread leak on a per test/module basis, you can
+use the `threadleak` pytest marker:
+
+To enable it for a single test::
+
+    @pytest.mark.threadleak
+    def test_leak():
+       ...
+
+To disable it for a single test::
+
+    @pytest.mark.threadleak(enabled=False)
+    def test_leak():
+       ...
+
+For an entire test module::
+
+    import pytest
+
+    pytestmark = pytest.mark.threadleak(enabled=False)
+
 
 Contributing
 ------------

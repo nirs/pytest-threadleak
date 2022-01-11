@@ -18,6 +18,13 @@ def pytest_addoption(parser):
         default=False)
 
 
+def pytest_configure(config):
+    config.addinivalue_line(
+        "markers",
+        "threadleak(enabled): mark test to enable/disable threadleak plugin",
+    )
+
+
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_call(item):
     start_threads = None
@@ -30,7 +37,19 @@ def pytest_runtest_call(item):
             pytest.fail("Test leaked %s" % sorted_by_name(leaked_threads))
 
 
+def marker_config(item):
+    marker = next(item.iter_markers(name="threadleak"), None)
+    if not marker:
+        return None
+    assert marker.args == () and set(marker.kwargs) in [set(), {"enabled"}],\
+        "Invalid marker config: " + repr(marker)
+    return marker.kwargs.get("enabled", True)
+
+
 def is_enabled(item):
+    config_from_marker = marker_config(item)
+    if config_from_marker is not None:
+        return config_from_marker
     return (item.config.getoption("threadleak") or
             item.config.getini("threadleak"))
 

@@ -1,9 +1,28 @@
+import pytest
+
 pytest_plugins = "pytester"
 
 LEAKING_TEST = """
 import threading
 import time
 
+def test_leak():
+    for i in range(2):
+        t = threading.Thread(
+            target=time.sleep,
+            args=(0.5,),
+            name="leaked-thread-%d" % i)
+        t.daemon = True
+        t.start()
+"""
+
+LEAKING_TEST_WITH_MARKER = """
+import threading
+import time
+
+import pytest
+
+@pytest.mark.{marker}
 def test_leak():
     for i in range(2):
         t = threading.Thread(
@@ -70,6 +89,29 @@ def test_leak_disabled_ini(testdir):
     result = testdir.runpytest('-v')
     result.stdout.fnmatch_lines(['*::test_leak PASSED*'])
     assert result.ret == 0
+
+
+def test_leak_disabled_marker(testdir):
+    testdir.makeini(INI_ENABLED)
+    testcode = LEAKING_TEST_WITH_MARKER.format(
+        marker="threadleak(enabled=False)")
+    testdir.makepyfile(testcode)
+    result = testdir.runpytest('-v')
+    result.stdout.fnmatch_lines(['*::test_leak PASSED*'])
+    assert result.ret == 0
+
+
+@pytest.mark.parametrize("marker", ["threadleak", "threadleak(enabled=True)"])
+def test_leak_enabled_marker(testdir, marker):
+    testdir.makeini(INI_DISABLED)
+    testcode = LEAKING_TEST_WITH_MARKER.format(marker=marker)
+    testdir.makepyfile(testcode)
+    result = testdir.runpytest('-v')
+    result.stdout.fnmatch_lines([
+        '*::test_leak FAILED*',
+        '*Failed: Test leaked *leaked-thread-0*leaked-thread-1*',
+    ])
+    assert result.ret == 1
 
 
 def test_no_leak(testdir):
