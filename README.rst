@@ -2,13 +2,9 @@
 pytest-threadleak
 =================
 
-.. image:: https://travis-ci.org/nirs/pytest-threadleak.svg?branch=master
-    :target: https://travis-ci.org/nirs/pytest-threadleak
-    :alt: See Build Status on Travis CI
-
-.. image:: https://ci.appveyor.com/api/projects/status/github/nirs/pytest-threadleak?branch=master
-    :target: https://ci.appveyor.com/project/nirs/pytest-threadleak/branch/master
-    :alt: See Build Status on AppVeyor
+.. image:: https://github.com/nirs/pytest-threadleak/actions/workflows/run-tests.yml/badge.svg
+    :target: https://github.com/nirs/pytest-threadleak/actions/workflows/run-tests.yml
+    :alt: Status of Github Actions python tests workflow
 
 Detects tests leaking threads
 =============================
