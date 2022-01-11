@@ -29,7 +29,7 @@ def test_leak_enabled_option(testdir):
     testdir.makepyfile(LEAKING_TEST)
     result = testdir.runpytest('--threadleak', '-v')
     result.stdout.fnmatch_lines([
-        '*::test_leak FAILED',
+        '*::test_leak FAILED*',
         '*Failed: Test leaked *leaked-thread-0*leaked-thread-1*',
     ])
     assert result.ret == 1
@@ -40,7 +40,7 @@ def test_leak_enabled_ini(testdir):
     testdir.makepyfile(LEAKING_TEST)
     result = testdir.runpytest('-v')
     result.stdout.fnmatch_lines([
-        '*::test_leak FAILED',
+        '*::test_leak FAILED*',
         '*Failed: Test leaked *leaked-thread-0*leaked-thread-1*',
     ])
     assert result.ret == 1
@@ -51,7 +51,7 @@ def test_leak_option_overrides_ini(testdir):
     testdir.makepyfile(LEAKING_TEST)
     result = testdir.runpytest('--threadleak', '-v')
     result.stdout.fnmatch_lines([
-        '*::test_leak FAILED',
+        '*::test_leak FAILED*',
         '*Failed: Test leaked *leaked-thread-0*leaked-thread-1*',
     ])
     assert result.ret == 1
@@ -60,7 +60,7 @@ def test_leak_option_overrides_ini(testdir):
 def test_leak_disabled(testdir):
     testdir.makepyfile(LEAKING_TEST)
     result = testdir.runpytest('-v')
-    result.stdout.fnmatch_lines(['*::test_leak PASSED'])
+    result.stdout.fnmatch_lines(['*::test_leak PASSED*'])
     assert result.ret == 0
 
 
@@ -68,7 +68,7 @@ def test_leak_disabled_ini(testdir):
     testdir.makeini(INI_DISABLED)
     testdir.makepyfile(LEAKING_TEST)
     result = testdir.runpytest('-v')
-    result.stdout.fnmatch_lines(['*::test_leak PASSED'])
+    result.stdout.fnmatch_lines(['*::test_leak PASSED*'])
     assert result.ret == 0
 
 
@@ -78,7 +78,7 @@ def test_no_leak(testdir):
             pass
     """)
     result = testdir.runpytest('--threadleak', '-v')
-    result.stdout.fnmatch_lines(['*::test_no_leak PASSED'])
+    result.stdout.fnmatch_lines(['*::test_no_leak PASSED*'])
     assert result.ret == 0
 
 
