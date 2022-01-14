@@ -11,15 +11,20 @@ import threading
 import time
 import pytest
 
-{function_marker}
-def test_leak():
-    for i in range(2):
-        t = threading.Thread(
-            target=time.sleep,
-            args=(0.5,),
-            name="leaked-thread-%d" % i)
-        t.daemon = True
-        t.start()
+{module_marker}
+
+{class_marker}
+class TestLeaks:
+
+    {function_marker}
+    def test_leak(self):
+        for i in range(2):
+            t = threading.Thread(
+                target=time.sleep,
+                args=(0.5,),
+                name="leaked-thread-%d" % i)
+            t.daemon = True
+            t.start()
 """
 
 INI_ENABLED = """
@@ -32,8 +37,11 @@ INI_DISABLED = """
 threadleak = False
 """
 
-def make_source(function_marker=""):
-    return LEAKING_TEST.format(function_marker=function_marker)
+def make_source(module_marker="", class_marker="", function_marker=""):
+    return LEAKING_TEST.format(
+        module_marker=module_marker,
+        class_marker=class_marker,
+        function_marker=function_marker)
 
 
 def test_leak_enabled_option(testdir):
@@ -92,8 +100,24 @@ def test_leak_disabled_marker(testdir):
     assert result.ret == 0
 
 
+def test_leak_enabled_module_marker(testdir):
+    testdir.makepyfile(make_source(
+        module_marker="pytestmark = pytest.mark.threadleak"))
+    result = testdir.runpytest('-v')
+    result.stdout.fnmatch_lines(['*::test_leak FAILED*'])
+    assert result.ret == 1
+
+
+def test_leak_enabled_class_marker(testdir):
+    testdir.makepyfile(make_source(
+        class_marker="@pytest.mark.threadleak"))
+    result = testdir.runpytest('-v')
+    result.stdout.fnmatch_lines(['*::test_leak FAILED*'])
+    assert result.ret == 1
+
+
 @pytest.mark.parametrize("marker", ["threadleak", "threadleak(enabled=True)"])
-def test_leak_enabled_marker(testdir, marker):
+def test_leak_enabled_function_marker(testdir, marker):
     testdir.makeini(INI_DISABLED)
     testdir.makepyfile(make_source(
         function_marker="@pytest.mark.{}".format(marker)))
@@ -102,6 +126,15 @@ def test_leak_enabled_marker(testdir, marker):
         '*::test_leak FAILED*',
         '*Failed: Test leaked *leaked-thread-0*leaked-thread-1*',
     ])
+    assert result.ret == 1
+
+
+def test_leak_enabled_multiple_markers(testdir):
+    testdir.makepyfile(make_source(
+        class_marker="@pytest.mark.threadleak(enabled=False)",
+        function_marker="@pytest.mark.threadleak"))
+    result = testdir.runpytest('-v')
+    result.stdout.fnmatch_lines(['*::test_leak FAILED*'])
     assert result.ret == 1
 
 
