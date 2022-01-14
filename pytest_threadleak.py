@@ -25,7 +25,7 @@ def pytest_addoption(parser):
 def pytest_configure(config):
     config.addinivalue_line(
         "markers",
-        "threadleak(enabled): mark test to enable/disable threadleak plugin",
+        "threadleak(enabled=True): enable or disable the threadleak plugin",
     )
 
 
