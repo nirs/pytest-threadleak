@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: Nir Soffer <nirsof@gmail.com>
+#
+# SPDX-License-Identifier: MIT
+
 import operator
 import threading
 import pytest

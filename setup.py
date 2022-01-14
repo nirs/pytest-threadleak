@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: Nir Soffer <nirsof@gmail.com>
+#
+# SPDX-License-Identifier: MIT
+
 import os
 import io
 from setuptools import setup

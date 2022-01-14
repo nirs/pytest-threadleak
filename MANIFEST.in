@@ -1,5 +1,9 @@
-include LICENSE
+# SPDX-FileCopyrightText: Nir Soffer <nirsof@gmail.com>
+#
+# SPDX-License-Identifier: MIT
+
 include README.rst
+recursive-include LICENSES *
 
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
