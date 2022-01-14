@@ -41,21 +41,31 @@ def pytest_runtest_call(item):
             pytest.fail("Test leaked %s" % sorted_by_name(leaked_threads))
 
 
-def marker_config(item):
-    marker = next(item.iter_markers(name="threadleak"), None)
-    if not marker:
-        return None
-    assert marker.args == () and set(marker.kwargs) in [set(), {"enabled"}],\
-        "Invalid marker config: " + repr(marker)
-    return marker.kwargs.get("enabled", True)
-
-
 def is_enabled(item):
-    config_from_marker = marker_config(item)
-    if config_from_marker is not None:
-        return config_from_marker
+    """
+    Test can enabled via config file, command line option, module marker, class
+    marker, and function marker. The most specific settings wins.
+    """
+    marker = item.get_closest_marker(name='threadleak')
+    if marker:
+        check_marker(marker)
+        return marker.kwargs.get("enabled", True)
+
     return (item.config.getoption("threadleak") or
             item.config.getini("threadleak"))
+
+
+def check_marker(marker):
+    """
+    Help users deal with typos by failing if called incorrectly.
+    """
+    if marker.args:
+        raise ValueError(
+            "Unexpected threadleak args: {}".format(marker.args))
+
+    if marker.kwargs and list(marker.kwargs) != ["enabled"]:
+        raise ValueError(
+            "Unexpected threadleak kwargs: {}".format(marker.kwargs))
 
 
 def current_threads():

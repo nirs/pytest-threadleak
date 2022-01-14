@@ -118,6 +118,31 @@ def test_leak_enabled_marker(testdir, marker):
     assert result.ret == 1
 
 
+def test_unexpected_marker_args(testdir):
+    testdir.makeini(INI_DISABLED)
+    testcode = LEAKING_TEST_WITH_MARKER.format(
+        marker="threadleak('unexpected', enabbled=True)")
+    testdir.makepyfile(testcode)
+    result = testdir.runpytest('-v')
+    result.stdout.fnmatch_lines([
+        '*::test_leak FAILED*',
+        "*ValueError: Unexpected threadleak args: ('unexpected',)"
+    ])
+    assert result.ret == 1
+
+
+def test_unexpected_marker_kwargs(testdir):
+    testdir.makeini(INI_DISABLED)
+    testcode = LEAKING_TEST_WITH_MARKER.format(
+        marker="threadleak(unexpected=True)")
+    testdir.makepyfile(testcode)
+    result = testdir.runpytest('-v')
+    result.stdout.fnmatch_lines([
+        '*::test_leak FAILED*',
+        "*ValueError: Unexpected threadleak kwargs: {'unexpected': True}"
+    ])
+    assert result.ret == 1
+
 def test_no_leak(testdir):
     testdir.makepyfile("""
         def test_no_leak():
