@@ -9,24 +9,9 @@ pytest_plugins = "pytester"
 LEAKING_TEST = """
 import threading
 import time
-
-def test_leak():
-    for i in range(2):
-        t = threading.Thread(
-            target=time.sleep,
-            args=(0.5,),
-            name="leaked-thread-%d" % i)
-        t.daemon = True
-        t.start()
-"""
-
-LEAKING_TEST_WITH_MARKER = """
-import threading
-import time
-
 import pytest
 
-@pytest.mark.{marker}
+{function_marker}
 def test_leak():
     for i in range(2):
         t = threading.Thread(
@@ -47,9 +32,12 @@ INI_DISABLED = """
 threadleak = False
 """
 
+def make_source(function_marker=""):
+    return LEAKING_TEST.format(function_marker=function_marker)
+
 
 def test_leak_enabled_option(testdir):
-    testdir.makepyfile(LEAKING_TEST)
+    testdir.makepyfile(make_source())
     result = testdir.runpytest('--threadleak', '-v')
     result.stdout.fnmatch_lines([
         '*::test_leak FAILED*',
@@ -60,7 +48,7 @@ def test_leak_enabled_option(testdir):
 
 def test_leak_enabled_ini(testdir):
     testdir.makeini(INI_ENABLED)
-    testdir.makepyfile(LEAKING_TEST)
+    testdir.makepyfile(make_source())
     result = testdir.runpytest('-v')
     result.stdout.fnmatch_lines([
         '*::test_leak FAILED*',
@@ -71,7 +59,7 @@ def test_leak_enabled_ini(testdir):
 
 def test_leak_option_overrides_ini(testdir):
     testdir.makeini(INI_DISABLED)
-    testdir.makepyfile(LEAKING_TEST)
+    testdir.makepyfile(make_source())
     result = testdir.runpytest('--threadleak', '-v')
     result.stdout.fnmatch_lines([
         '*::test_leak FAILED*',
@@ -81,7 +69,7 @@ def test_leak_option_overrides_ini(testdir):
 
 
 def test_leak_disabled(testdir):
-    testdir.makepyfile(LEAKING_TEST)
+    testdir.makepyfile(make_source())
     result = testdir.runpytest('-v')
     result.stdout.fnmatch_lines(['*::test_leak PASSED*'])
     assert result.ret == 0
@@ -89,7 +77,7 @@ def test_leak_disabled(testdir):
 
 def test_leak_disabled_ini(testdir):
     testdir.makeini(INI_DISABLED)
-    testdir.makepyfile(LEAKING_TEST)
+    testdir.makepyfile(make_source())
     result = testdir.runpytest('-v')
     result.stdout.fnmatch_lines(['*::test_leak PASSED*'])
     assert result.ret == 0
@@ -97,9 +85,8 @@ def test_leak_disabled_ini(testdir):
 
 def test_leak_disabled_marker(testdir):
     testdir.makeini(INI_ENABLED)
-    testcode = LEAKING_TEST_WITH_MARKER.format(
-        marker="threadleak(enabled=False)")
-    testdir.makepyfile(testcode)
+    testdir.makepyfile(make_source(
+        function_marker="@pytest.mark.threadleak(enabled=False)"))
     result = testdir.runpytest('-v')
     result.stdout.fnmatch_lines(['*::test_leak PASSED*'])
     assert result.ret == 0
@@ -108,8 +95,8 @@ def test_leak_disabled_marker(testdir):
 @pytest.mark.parametrize("marker", ["threadleak", "threadleak(enabled=True)"])
 def test_leak_enabled_marker(testdir, marker):
     testdir.makeini(INI_DISABLED)
-    testcode = LEAKING_TEST_WITH_MARKER.format(marker=marker)
-    testdir.makepyfile(testcode)
+    testdir.makepyfile(make_source(
+        function_marker="@pytest.mark.{}".format(marker)))
     result = testdir.runpytest('-v')
     result.stdout.fnmatch_lines([
         '*::test_leak FAILED*',
@@ -120,9 +107,8 @@ def test_leak_enabled_marker(testdir, marker):
 
 def test_unexpected_marker_args(testdir):
     testdir.makeini(INI_DISABLED)
-    testcode = LEAKING_TEST_WITH_MARKER.format(
-        marker="threadleak('unexpected', enabbled=True)")
-    testdir.makepyfile(testcode)
+    testdir.makepyfile(make_source(
+        function_marker="@pytest.mark.threadleak('unexpected')"))
     result = testdir.runpytest('-v')
     result.stdout.fnmatch_lines([
         '*::test_leak FAILED*',
@@ -133,9 +119,8 @@ def test_unexpected_marker_args(testdir):
 
 def test_unexpected_marker_kwargs(testdir):
     testdir.makeini(INI_DISABLED)
-    testcode = LEAKING_TEST_WITH_MARKER.format(
-        marker="threadleak(unexpected=True)")
-    testdir.makepyfile(testcode)
+    testdir.makepyfile(make_source(
+        function_marker="@pytest.mark.threadleak(unexpected=True)"))
     result = testdir.runpytest('-v')
     result.stdout.fnmatch_lines([
         '*::test_leak FAILED*',
