@@ -6,8 +6,8 @@
 pytest-threadleak
 =================
 
-.. image:: https://github.com/nirs/pytest-threadleak/actions/workflows/run-tests.yml/badge.svg
-    :target: https://github.com/nirs/pytest-threadleak/actions/workflows/run-tests.yml
+.. image:: https://github.com/nirs/pytest-threadleak/actions/workflows/ci.yml/badge.svg
+    :target: https://github.com/nirs/pytest-threadleak/actions/workflows/ci.yml
     :alt: Status of Github Actions python tests workflow
 
 Detects tests leaking threads
