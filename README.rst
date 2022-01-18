@@ -6,9 +6,22 @@
 pytest-threadleak
 =================
 
+.. image:: https://img.shields.io/pypi/v/pytest-threadleak.svg
+    :target: https://pypi.python.org/pypi/pytest-threadleak
+    :alt: Current version
+.. image:: https://img.shields.io/pypi/pyversions/pytest-threadleak
+    :target: https://pypi.python.org/pypi/pytest-threadleak
+    :alt: Supports Python 2.7, 3.10, 3.9, 3.8, 3.7, 3.7
+.. image:: https://img.shields.io/pypi/dm/pytest-threadleak
+    :target: https://pypi.python.org/pypi/pytest-threadleak
+    :alt: Downloads per month
 .. image:: https://github.com/nirs/pytest-threadleak/actions/workflows/ci.yml/badge.svg
     :target: https://github.com/nirs/pytest-threadleak/actions/workflows/ci.yml
-    :alt: Status of Github Actions python tests workflow
+    :alt: Tests status
+.. image:: https://img.shields.io/pypi/l/pytest-threadleak
+    :target: https://pypi.python.org/pypi/pytest-threadleak
+    :alt: MIT license
+
 
 Detects tests leaking threads
 =============================
