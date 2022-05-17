@@ -32,10 +32,23 @@ INI_ENABLED = """
 threadleak = True
 """
 
+INI_ENABLED_WITH_EXCLUDE_1 = """
+[pytest]
+threadleak = True
+threadleak_exclude = leaked-thread-1
+"""
+
+INI_ENABLED_WITH_EXCLUDE_ALL = """
+[pytest]
+threadleak = True
+threadleak_exclude = leaked-thread-[01]
+"""
+
 INI_DISABLED = """
 [pytest]
 threadleak = False
 """
+
 
 def make_source(module_marker="", class_marker="", function_marker=""):
     return LEAKING_TEST.format(
@@ -138,6 +151,25 @@ def test_leak_enabled_multiple_markers(testdir):
     assert result.ret == 1
 
 
+def test_leak_enabled_exclude(testdir):
+    testdir.makeini(INI_ENABLED_WITH_EXCLUDE_1)
+    testdir.makepyfile(make_source())
+    result = testdir.runpytest('-v')
+    result.stdout.fnmatch_lines([
+        '*::test_leak FAILED*',
+        '*Failed: Test leaked *leaked-thread-0*',
+    ])
+    assert result.ret == 1
+
+
+def test_leak_enabled_exclude_all(testdir):
+    testdir.makeini(INI_ENABLED_WITH_EXCLUDE_ALL)
+    testdir.makepyfile(make_source())
+    result = testdir.runpytest('-v')
+    result.stdout.fnmatch_lines(['*::test_leak PASSED*'])
+    assert result.ret == 0
+
+
 def test_unexpected_marker_args(testdir):
     testdir.makeini(INI_DISABLED)
     testdir.makepyfile(make_source(
@@ -160,6 +192,7 @@ def test_unexpected_marker_kwargs(testdir):
         "*ValueError: Unexpected threadleak kwargs: {'unexpected': True}"
     ])
     assert result.ret == 1
+
 
 def test_no_leak(testdir):
     testdir.makepyfile("""
