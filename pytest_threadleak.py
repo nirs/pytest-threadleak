@@ -3,7 +3,9 @@
 # SPDX-License-Identifier: MIT
 
 import operator
+import re
 import threading
+
 import pytest
 
 
@@ -20,6 +22,11 @@ def pytest_addoption(parser):
         'Detect thread leak (default: False)',
         type="bool",
         default=False)
+    parser.addini(
+        'threadleak-ignore',
+        'Regex of thread names to ignore',
+        type="string",
+        default='')
 
 
 def pytest_configure(config):
@@ -38,6 +45,11 @@ def pytest_runtest_call(item):
     if start_threads:
         leaked_threads = current_threads() - start_threads
         if leaked_threads:
+            ignore_regex = item.config.getini("threadleak-ignore")
+            if ignore_regex:
+                leaked_threads = [thread for thread in leaked_threads if not re.match(ignore_regex, thread.name)]
+                if not leaked_threads:
+                    return
             pytest.fail("Test leaked %s" % sorted_by_name(leaked_threads))
 
 
