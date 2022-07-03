@@ -85,6 +85,12 @@ For an entire test module::
 
     pytestmark = pytest.mark.threadleak(enabled=False)
 
+If you want to exclude some threads from the leak check, you can specify a
+regex to match excluded thread names::
+
+    [pytest]
+    threadleak = True
+    threadleak_exclude = pool/\d+
 
 Contributing
 ------------
