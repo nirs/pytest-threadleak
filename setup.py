@@ -15,7 +15,7 @@ def read(fname):
 
 setup(
     name='pytest-threadleak',
-    version='0.4.0',
+    version='0.5.0',
     author='Nir Soffer',
     author_email='nirsof@gmail.com',
     maintainer='Nir Soffer',
