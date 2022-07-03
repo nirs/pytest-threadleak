@@ -78,10 +78,8 @@ def check_marker(marker):
 def current_threads(exclude_regex=None):
     threads = threading.enumerate()
     if exclude_regex:
-        threads = [
-            thread for thread in threads
-            if not re.match(exclude_regex, thread.name)
-        ]
+        threads = [thread for thread in threads
+                   if not re.match(exclude_regex, thread.name)]
     return frozenset(threads)
 
 
