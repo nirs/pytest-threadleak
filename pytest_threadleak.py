@@ -39,10 +39,10 @@ def pytest_runtest_call(item):
     start_threads = None
     exclude_regex = item.config.getini("threadleak_exclude")
     if is_enabled(item):
-        start_threads = current_threads(exclude_regex=exclude_regex)
+        start_threads = current_threads(exclude_regex)
     yield
     if start_threads:
-        end_threads = current_threads(exclude_regex=exclude_regex)
+        end_threads = current_threads(exclude_regex)
         leaked_threads = end_threads - start_threads
         if leaked_threads:
             pytest.fail("Test leaked %s" % sorted_by_name(leaked_threads))
