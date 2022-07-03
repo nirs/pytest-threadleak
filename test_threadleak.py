@@ -32,7 +32,7 @@ INI_ENABLED = """
 threadleak = True
 """
 
-INI_ENABLED_WITH_EXCLUDE_1 = """
+INI_ENABLED_WITH_EXCLUDE_ONE = """
 [pytest]
 threadleak = True
 threadleak_exclude = leaked-thread-1
@@ -41,7 +41,7 @@ threadleak_exclude = leaked-thread-1
 INI_ENABLED_WITH_EXCLUDE_ALL = """
 [pytest]
 threadleak = True
-threadleak_exclude = leaked-thread-[01]
+threadleak_exclude = leaked-thread-
 """
 
 INI_DISABLED = """
@@ -151,8 +151,8 @@ def test_leak_enabled_multiple_markers(testdir):
     assert result.ret == 1
 
 
-def test_leak_enabled_exclude(testdir):
-    testdir.makeini(INI_ENABLED_WITH_EXCLUDE_1)
+def test_leak_enabled_exclude_one(testdir):
+    testdir.makeini(INI_ENABLED_WITH_EXCLUDE_ONE)
     testdir.makepyfile(make_source())
     result = testdir.runpytest('-v')
     result.stdout.fnmatch_lines([
