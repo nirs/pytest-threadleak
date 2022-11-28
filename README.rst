@@ -29,7 +29,9 @@ Detects tests leaking threads
 Installation
 ------------
 
-You can install "pytest-threadleak" via `pip`_ from `PyPI`_::
+You can install "pytest-threadleak" via `pip`_ from `PyPI`_:
+
+.. code-block:: bash
 
     $ pip install pytest-threadleak
 
@@ -40,16 +42,20 @@ Usage
 The threadleak pytest plugin will fail leaking threads. This can be an issue in
 the test, or in the tested code.
 
-Here is an example leaking test::
+Here is an example leaking test:
 
-    $ cat leak_test.py
+.. code-block:: python
+
+    # leak_test.py
     import threading
     import time
 
     def test_leak():
         threading.Thread(target=time.sleep, args=(1,)).start()
 
-Here is an example run with thread leak plugin enabled::
+Here is an example run with thread leak plugin enabled:
+
+.. code-block:: bash
 
     $ pytest --threadleak leak_test.py
     ...
@@ -59,7 +65,9 @@ Here is an example run with thread leak plugin enabled::
     E   Failed: Test leaked [<Thread(Thread-1, started 139762716391168)>]
 
 If you want to enable thread leak by default, you can enable it in your
-pytest.ini or tox.ini::
+pytest.ini or tox.ini:
+
+.. code-block:: ini
 
     [pytest]
     threadleak = True
@@ -67,26 +75,34 @@ pytest.ini or tox.ini::
 If you want to enable thread leak on a per test/module basis, you can
 use the `threadleak` pytest marker:
 
-To enable it for a single test::
+To enable it for a single test:
+
+.. code-block:: python
 
     @pytest.mark.threadleak
     def test_leak():
        ...
 
-To disable it for a single test::
+To disable it for a single test:
+
+.. code-block:: python
 
     @pytest.mark.threadleak(enabled=False)
     def test_leak():
        ...
 
-For an entire test module::
+For an entire test module:
+
+.. code-block:: python
 
     import pytest
 
     pytestmark = pytest.mark.threadleak(enabled=False)
 
 If you want to exclude some threads from the leak check, you can specify a
-regex to match excluded thread names::
+regex to match excluded thread names:
+
+.. code-block:: ini
 
     [pytest]
     threadleak = True
@@ -95,7 +111,9 @@ regex to match excluded thread names::
 Contributing
 ------------
 
-Running the tests::
+Running the tests:
+
+.. code-block:: bash
 
     $ tox
 
