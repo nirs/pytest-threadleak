@@ -25,6 +25,11 @@ def pytest_addoption(parser):
     parser.addini(
         'threadleak_exclude',
         'Regex of thread names to exclude')
+    parser.addini(
+        'threadleak_exclude_daemons',
+        'When True, ignores leaked daemon threads',
+        type="bool",
+        default=False)
 
 
 def pytest_configure(config):
@@ -38,11 +43,12 @@ def pytest_configure(config):
 def pytest_runtest_call(item):
     start_threads = None
     exclude_regex = item.config.getini("threadleak_exclude")
+    exclude_daemons = item.config.getini("threadleak_exclude_daemons")
     if is_enabled(item):
-        start_threads = current_threads(exclude_regex)
+        start_threads = current_threads(exclude_regex, exclude_daemons)
     yield
     if start_threads:
-        end_threads = current_threads(exclude_regex)
+        end_threads = current_threads(exclude_regex, exclude_daemons)
         leaked_threads = end_threads - start_threads
         if leaked_threads:
             pytest.fail("Test leaked %s" % sorted_by_name(leaked_threads))
@@ -75,11 +81,16 @@ def check_marker(marker):
             "Unexpected threadleak kwargs: {}".format(marker.kwargs))
 
 
-def current_threads(exclude_regex=None):
+def current_threads(exclude_regex=None, exclude_daemons=False):
     threads = threading.enumerate()
+
     if exclude_regex:
         threads = [thread for thread in threads
                    if not re.match(exclude_regex, thread.name)]
+
+    if exclude_daemons:
+        threads = [thread for thread in threads if not thread.daemon]
+
     return frozenset(threads)
 
 
