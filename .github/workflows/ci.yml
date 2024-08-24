@@ -46,3 +46,4 @@ jobs:
           python-version: "3.x"
       - run: pip install tox
       - run: tox -e flake8
+      - run: tox -e black
