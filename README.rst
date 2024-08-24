@@ -11,7 +11,7 @@ pytest-threadleak
     :alt: Current version
 .. image:: https://img.shields.io/pypi/pyversions/pytest-threadleak
     :target: https://pypi.python.org/pypi/pytest-threadleak
-    :alt: Supports Python 2.7, 3.10, 3.9, 3.8, 3.7, 3.7
+    :alt: Supports Python 3.12, 3.11, 3.10, 3.9, 3.8
 .. image:: https://img.shields.io/pypi/dm/pytest-threadleak
     :target: https://pypi.python.org/pypi/pytest-threadleak
     :alt: Downloads per month
