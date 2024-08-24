@@ -20,3 +20,4 @@ htmlcov/
 .tox/
 .coverage
 .cache
+.venv
