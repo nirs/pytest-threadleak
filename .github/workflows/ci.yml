@@ -24,6 +24,10 @@ jobs:
           - "pypy-3.8"
           - "pypy-3.9"
           - "pypy-3.10"
+        exclude:
+          # Warns about old pip.
+          - os: macos-latest
+            python: "3.8"
     steps:
       - uses: actions/checkout@v4
       - name: Setup Python
