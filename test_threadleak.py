@@ -189,6 +189,39 @@ def test_leak_enabled_exclude_all(testdir):
     assert result.ret == 0
 
 
+def test_leak_enabled_exclude_module_marker(testdir):
+    testdir.makepyfile(
+        make_source(
+            module_marker="pytestmark = pytest.mark.threadleak(exclude='leaked-thread-')",
+        ),
+    )
+    result = testdir.runpytest("-v")
+    result.stdout.fnmatch_lines(["*::test_leak PASSED*"])
+    assert result.ret == 0
+
+
+def test_leak_enabled_exclude_class_marker(testdir):
+    testdir.makepyfile(
+        make_source(
+            class_marker="@pytest.mark.threadleak(exclude='leaked-thread-')",
+        ),
+    )
+    result = testdir.runpytest("-v")
+    result.stdout.fnmatch_lines(["*::test_leak PASSED*"])
+    assert result.ret == 0
+
+
+def test_leak_enabled_exclude_function_marker(testdir):
+    testdir.makepyfile(
+        make_source(
+            function_marker="@pytest.mark.threadleak(exclude='leaked-thread-')",
+        ),
+    )
+    result = testdir.runpytest("-v")
+    result.stdout.fnmatch_lines(["*::test_leak PASSED*"])
+    assert result.ret == 0
+
+
 def test_leak_enabled_exclude_daemons(testdir):
     testdir.makeini(INI_ENABLED_WITH_EXCLUDE_DAEMONS)
     testdir.makepyfile(make_source(daemon=True))
@@ -203,6 +236,42 @@ def test_leak_enabled_include_non_daemons(testdir):
     result = testdir.runpytest("-v")
     result.stdout.fnmatch_lines(["*::test_leak FAILED*"])
     assert result.ret == 1
+
+
+def test_leak_enabled_exclude_daemons_module_marker(testdir):
+    testdir.makepyfile(
+        make_source(
+            module_marker="pytestmark = pytest.mark.threadleak(exclude_daemons=True)",
+            daemon=True,
+        ),
+    )
+    result = testdir.runpytest("-v")
+    result.stdout.fnmatch_lines(["*::test_leak PASSED*"])
+    assert result.ret == 0
+
+
+def test_leak_enabled_exclude_daemons_class_marker(testdir):
+    testdir.makepyfile(
+        make_source(
+            class_marker="@pytest.mark.threadleak(exclude_daemons=True)",
+            daemon=True,
+        ),
+    )
+    result = testdir.runpytest("-v")
+    result.stdout.fnmatch_lines(["*::test_leak PASSED*"])
+    assert result.ret == 0
+
+
+def test_leak_enabled_exclude_daemons_function_marker(testdir):
+    testdir.makepyfile(
+        make_source(
+            function_marker="@pytest.mark.threadleak(exclude_daemons=True)",
+            daemon=True,
+        ),
+    )
+    result = testdir.runpytest("-v")
+    result.stdout.fnmatch_lines(["*::test_leak PASSED*"])
+    assert result.ret == 0
 
 
 def test_unexpected_marker_args(testdir):

@@ -117,6 +117,26 @@ If you want to ignore leaked daemon threads, specify
     threadleak = True
     threadleak_exclude_daemons = True
 
+The `exclude` and `exclude_daemons` options can also be used in module marker,
+class marker or function markers, to enable the option only for certain moudle,
+test class, or test function:
+
+.. code-block:: python
+
+    @pytest.mark.threadleak(exclude=r"pool/\d+")
+    def test_exclude_leaked_threads_by_regrex():
+        ...
+
+    @pytest.mark.threadleak(exclude_daemons=True)
+    def test_exclude_leaked_daemon_threads():
+        ...
+
+    def test_no_leaked_threads_here():
+        ...
+
+In this example, thread "pool/42" is allowed to leak in the first test, and all
+daemon threads are allowed to leak in the second test. No threads area allowed
+to leak in the last test.
 
 Contributing
 ------------
