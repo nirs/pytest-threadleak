@@ -39,13 +39,13 @@ def pytest_configure(config):
 
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_call(item):
-    start_threads = None
-    exclude_regex = item.config.getini("threadleak_exclude")
-    exclude_daemons = item.config.getini("threadleak_exclude_daemons")
-    if is_enabled(item):
+    enabled = is_enabled(item)
+    if enabled:
+        exclude_regex = item.config.getini("threadleak_exclude")
+        exclude_daemons = item.config.getini("threadleak_exclude_daemons")
         start_threads = current_threads(exclude_regex, exclude_daemons)
     yield
-    if start_threads:
+    if enabled:
         end_threads = current_threads(exclude_regex, exclude_daemons)
         leaked_threads = end_threads - start_threads
         if leaked_threads:
