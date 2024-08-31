@@ -41,8 +41,8 @@ def pytest_configure(config):
 def pytest_runtest_call(item):
     enabled = is_enabled(item)
     if enabled:
-        exclude_regex = item.config.getini("threadleak_exclude")
-        exclude_daemons = item.config.getini("threadleak_exclude_daemons")
+        exclude_regex = get_exclude_regex(item)
+        exclude_daemons = is_exclude_daemons(item)
         start_threads = current_threads(exclude_regex, exclude_daemons)
     yield
     if enabled:
@@ -65,6 +65,20 @@ def is_enabled(item):
     return item.config.getoption("threadleak") or item.config.getini("threadleak")
 
 
+def get_exclude_regex(item):
+    marker = item.get_closest_marker(name="threadleak")
+    if marker:
+        return marker.kwargs.get("exclude")
+    return item.config.getini("threadleak_exclude")
+
+
+def is_exclude_daemons(item):
+    marker = item.get_closest_marker(name="threadleak")
+    if marker:
+        return marker.kwargs.get("exclude_daemons", False)
+    return item.config.getini("threadleak_exclude_daemons")
+
+
 def check_marker(marker):
     """
     Help users deal with typos by failing if called incorrectly.
@@ -72,8 +86,14 @@ def check_marker(marker):
     if marker.args:
         raise ValueError("Unexpected threadleak args: {}".format(marker.args))
 
-    if marker.kwargs and list(marker.kwargs) != ["enabled"]:
-        raise ValueError("Unexpected threadleak kwargs: {}".format(marker.kwargs))
+    expected_keys = frozenset(["enabled", "exclude", "exclude_daemons"])
+    unexpected_kwargs = {}
+    for key, value in marker.kwargs.items():
+        if key not in expected_keys:
+            unexpected_kwargs[key] = value
+
+    if unexpected_kwargs:
+        raise ValueError("Unexpected threadleak kwargs: {}".format(unexpected_kwargs))
 
 
 def current_threads(exclude_regex=None, exclude_daemons=False):
