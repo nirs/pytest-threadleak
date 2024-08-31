@@ -10,26 +10,24 @@ import pytest
 
 
 def pytest_addoption(parser):
-    group = parser.getgroup('threadleak')
+    group = parser.getgroup("threadleak")
     group.addoption(
-        '--threadleak',
-        action='store_true',
-        dest='threadleak',
+        "--threadleak",
+        action="store_true",
+        dest="threadleak",
         default=False,
-        help='Detect tests leaking threads')
+        help="Detect tests leaking threads",
+    )
     parser.addini(
-        'threadleak',
-        'Detect thread leak (default: False)',
+        "threadleak", "Detect thread leak (default: False)", type="bool", default=False
+    )
+    parser.addini("threadleak_exclude", "Regex of thread names to exclude")
+    parser.addini(
+        "threadleak_exclude_daemons",
+        "When True, ignores leaked daemon threads",
         type="bool",
-        default=False)
-    parser.addini(
-        'threadleak_exclude',
-        'Regex of thread names to exclude')
-    parser.addini(
-        'threadleak_exclude_daemons',
-        'When True, ignores leaked daemon threads',
-        type="bool",
-        default=False)
+        default=False,
+    )
 
 
 def pytest_configure(config):
@@ -59,13 +57,12 @@ def is_enabled(item):
     Test can enabled via config file, command line option, module marker, class
     marker, and function marker. The most specific settings wins.
     """
-    marker = item.get_closest_marker(name='threadleak')
+    marker = item.get_closest_marker(name="threadleak")
     if marker:
         check_marker(marker)
         return marker.kwargs.get("enabled", True)
 
-    return (item.config.getoption("threadleak") or
-            item.config.getini("threadleak"))
+    return item.config.getoption("threadleak") or item.config.getini("threadleak")
 
 
 def check_marker(marker):
@@ -73,20 +70,19 @@ def check_marker(marker):
     Help users deal with typos by failing if called incorrectly.
     """
     if marker.args:
-        raise ValueError(
-            "Unexpected threadleak args: {}".format(marker.args))
+        raise ValueError("Unexpected threadleak args: {}".format(marker.args))
 
     if marker.kwargs and list(marker.kwargs) != ["enabled"]:
-        raise ValueError(
-            "Unexpected threadleak kwargs: {}".format(marker.kwargs))
+        raise ValueError("Unexpected threadleak kwargs: {}".format(marker.kwargs))
 
 
 def current_threads(exclude_regex=None, exclude_daemons=False):
     threads = threading.enumerate()
 
     if exclude_regex:
-        threads = [thread for thread in threads
-                   if not re.match(exclude_regex, thread.name)]
+        threads = [
+            thread for thread in threads if not re.match(exclude_regex, thread.name)
+        ]
 
     if exclude_daemons:
         threads = [thread for thread in threads if not thread.daemon]

@@ -24,13 +24,26 @@ jobs:
           - "pypy-3.8"
           - "pypy-3.9"
           - "pypy-3.10"
+        exclude:
+          # Warns about old pip.
+          - os: macos-latest
+            python: "3.8"
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
-      - name: Install requirements
-        run: pip install tox
-      - name: Run tests
-        run: tox -e py,flake8
+      - run: pip install tox
+      - run: tox -e py
+  lints:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          # latest stable version
+          # https://github.com/actions/setup-python/blob/main/docs/advanced-usage.md#specifying-a-python-version
+          python-version: "3.x"
+      - run: pip install tox
+      - run: tox -e flake8
+      - run: tox -e black
