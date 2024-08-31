@@ -189,7 +189,7 @@ def test_leak_enabled_exclude_all(testdir):
     assert result.ret == 0
 
 
-def test_leak_enabled_exclude_daemons_when_leaked_are_daemon(testdir):
+def test_leak_enabled_exclude_daemons(testdir):
     testdir.makeini(INI_ENABLED_WITH_EXCLUDE_DAEMONS)
     testdir.makepyfile(make_source(daemon=True))
     result = testdir.runpytest("-v")
@@ -197,7 +197,7 @@ def test_leak_enabled_exclude_daemons_when_leaked_are_daemon(testdir):
     assert result.ret == 0
 
 
-def test_leak_enabled_exclude_daemons_when_leaked_are_not_daemon(testdir):
+def test_leak_enabled_include_non_daemons(testdir):
     testdir.makeini(INI_ENABLED_WITH_EXCLUDE_DAEMONS)
     testdir.makepyfile(make_source(daemon=False))
     result = testdir.runpytest("-v")
