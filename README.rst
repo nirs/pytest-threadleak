@@ -111,7 +111,6 @@ regex to match excluded thread names:
 If you want to ignore leaked daemon threads, specify
 `threadleak_exclude_daemons` (defaults to `False`):
 
-
 .. code-block:: ini
 
     [pytest]
