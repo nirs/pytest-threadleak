@@ -23,7 +23,7 @@ class TestLeaks:
                 target=time.sleep,
                 args=(0.5,),
                 name="leaked-thread-%d" % i)
-            t.daemon = True
+            t.daemon = {daemon}
             t.start()
 """
 
@@ -44,17 +44,24 @@ threadleak = True
 threadleak_exclude = leaked-thread-
 """
 
+INI_ENABLED_WITH_EXCLUDE_DAEMONS = """
+[pytest]
+threadleak = True
+threadleak_exclude_daemons = True
+"""
+
 INI_DISABLED = """
 [pytest]
 threadleak = False
 """
 
 
-def make_source(module_marker="", class_marker="", function_marker=""):
+def make_source(module_marker="", class_marker="", function_marker="", daemon=True):
     return LEAKING_TEST.format(
         module_marker=module_marker,
         class_marker=class_marker,
         function_marker=function_marker,
+        daemon=daemon,
     )
 
 
@@ -180,6 +187,22 @@ def test_leak_enabled_exclude_all(testdir):
     result = testdir.runpytest("-v")
     result.stdout.fnmatch_lines(["*::test_leak PASSED*"])
     assert result.ret == 0
+
+
+def test_leak_enabled_exclude_daemons_when_leaked_are_daemon(testdir):
+    testdir.makeini(INI_ENABLED_WITH_EXCLUDE_DAEMONS)
+    testdir.makepyfile(make_source(daemon=True))
+    result = testdir.runpytest("-v")
+    result.stdout.fnmatch_lines(["*::test_leak PASSED*"])
+    assert result.ret == 0
+
+
+def test_leak_enabled_exclude_daemons_when_leaked_are_not_daemon(testdir):
+    testdir.makeini(INI_ENABLED_WITH_EXCLUDE_DAEMONS)
+    testdir.makepyfile(make_source(daemon=False))
+    result = testdir.runpytest("-v")
+    result.stdout.fnmatch_lines(["*::test_leak FAILED*"])
+    assert result.ret == 1
 
 
 def test_unexpected_marker_args(testdir):

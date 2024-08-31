@@ -108,6 +108,17 @@ regex to match excluded thread names:
     threadleak = True
     threadleak_exclude = pool/\d+
 
+If you want to ignore leaked daemon threads, specify
+`threadleak_exclude_daemons` (defaults to `False`):
+
+
+.. code-block:: ini
+
+    [pytest]
+    threadleak = True
+    threadleak_exclude_daemons = True
+
+
 Contributing
 ------------
 
